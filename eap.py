@@ -56,13 +56,30 @@ no_ava_rooms = [
 
 from pipe import *
 
+# def ealiest_avaiable_period(room):
+#   return {'room_id': room['room_id'], 
+#           'time': sorted( \
+#             room['periods'] | \
+#               where(lambda p: p['status'] == 'available'), key=lambda p: p['time']) | \
+#             select(lambda p: p['time']) | \
+#             first('N/A')}
+
 def ealiest_avaiable_period(room):
-  s = sorted(room['periods'] | where(lambda p: p['status'] == 'available'), key=lambda p: p['time'])
-  return {'room_id': room['room_id'], 'time': s[0]['time'] if len(s) > 0 else 'N/A'}
+  return {'room_id': room['room_id'], 
+          'time': sorted( \
+                    room['periods'] \
+                      | where(lambda p: p['status'] == 'available') \
+                      | select(lambda p: p['time']) \
+                  ) \
+                  | first('N/A')}
 
 def most_eap(rooms):
-  s = sorted(rooms | select(ealiest_avaiable_period) | where(lambda r: r['time'] != 'N/A'), key=lambda x: x['time'])
-  return s[0] if len(s) > 0 else 'No Availiable Room'
+  return sorted(rooms \
+                  | select(ealiest_avaiable_period) \
+                  | where(lambda r: r['time'] != 'N/A'), \
+          key=lambda x: x['time'] \
+          ) \
+          | first('No Availiable Room')
 
 
 
